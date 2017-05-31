@@ -1,15 +1,20 @@
 var lerp = require('lerp');
 var smoothstep = require('smoothstep');
 
-module.exports.nearest = function(data, width, height, x, y) {
+module.exports.nearest = function(data, width, height, x, y, stride, offset) {
+    stride = stride || 1;
+    offset = Number(offset);
     var px = ~~x % width,
         py = ~~y % height;
-    return data[ px + (py * width) ];
+    return data[ ((px + (py * width))) * stride + offset ];
 };
 
-module.exports.bilinear = function(data, width, height, x, y) {
+module.exports.bilinear = function(data, width, height, x, y, stride, offset) {
     //bilinear interpolation 
     //http://www.scratchapixel.com/lessons/3d-advanced-lessons/noise-part-1/creating-a-simple-2d-noise/
+    stride = Number(stride) || 1;
+    offset = Number(offset);
+
     var xi = Math.floor( x );
     var yi = Math.floor( y );
  
@@ -22,10 +27,10 @@ module.exports.bilinear = function(data, width, height, x, y) {
     var ry1 = ( ry0 + 1 ) % height;
  
     /// random values at the corners of the cell using permutation table
-    var c00 = data[ (ry0 * width + rx0) ];
-    var c10 = data[ (ry0 * width + rx1) ];
-    var c01 = data[ (ry1 * width + rx0) ];
-    var c11 = data[ (ry1 * width + rx1) ];
+    var c00 = data[ (ry0 * width + rx0) * stride + offset ];
+    var c10 = data[ (ry0 * width + rx1) * stride + offset ];
+    var c01 = data[ (ry1 * width + rx0) * stride + offset ];
+    var c11 = data[ (ry1 * width + rx1) * stride + offset ];
 
     /// remapping of tx and ty using the Smoothstep function
     var sx = smoothstep( 0, 1, tx );
